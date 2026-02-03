@@ -6,6 +6,7 @@ const router = Router({ mergeParams: true });
 
 router.post('/:botId/start', chatController.startConversation);
 router.post('/:botId/message', chatController.sendMessage);
+router.post('/:botId/ai-message', chatController.sendAIMessage); // LLM-only endpoint (body: message, sessionId?, stream?)
 router.get('/:botId/history/:sessionId', chatController.getHistory);
 router.post('/:botId/end/:sessionId', chatController.endConversation);
 router.post('/:botId/escalate', chatController.escalateConversation); // body: { sessionId, reason? }

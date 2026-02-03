@@ -71,6 +71,19 @@ High-level roadmap of what’s done and what’s left. Use this to track progres
 
 ---
 
+## Phase 7.5: LLM-First Hybrid Architecture — **DONE (Phase 1)**
+
+- [x] Bot config: `config.aiMode` (`llm_first` | `hybrid` | `intent_only`), `config.aiConfig` (primaryLLM, temperature, maxTokens, ragEnabled, fallbackToIntent)
+- [x] RAG service: `getRelevantKnowledgeChunks(botId, query, limit)` using existing KB + keyword/fuzzy match (no vector DB)
+- [x] LLM Brain service: OpenAI integration, system prompt from bot + RAG chunks, `generateLLMResponse()`, graceful fallback when no API key
+- [x] Message router: `routeAndRespond(botId, message, sessionId)` — LLM-first / hybrid / intent-only; conversation context loader
+- [x] Chat flow: `POST /api/chat/:botId/message` and `POST /api/bots/:botId/test` use router (LLM or intent)
+- [x] Dedicated AI endpoint: `POST /api/chat/:botId/ai-message` (body: message, sessionId?, stream?) — always LLM when key set
+- [x] Dashboard: Overview tab — AI mode selector (LLM-first, Hybrid, Intent-only)
+- [ ] **Next:** Streaming (SSE), workflow engine (n8n), optional Pinecone/vector DB, auto-learning from conversations
+
+---
+
 ## Phase 8: Admin dashboard & polish — **PARTIAL**
 
 - [x] Org-scoped dashboard, bot list, create (purpose-based + from-template)

@@ -27,6 +27,17 @@ export interface IBot extends Document {
       leadCaptureFields?: { name: string; type: 'text' | 'email' | 'phone'; required: boolean; label: string }[];
     };
     languages?: string[];
+    /** LLM-first hybrid: 'llm_first' | 'hybrid' | 'intent_only'. Default intent_only for backward compat. */
+    aiMode?: 'llm_first' | 'hybrid' | 'intent_only';
+    /** OpenAI (or other LLM) config when aiMode is llm_first or hybrid */
+    aiConfig?: {
+      primaryLLM?: 'gpt-4' | 'gpt-4-turbo' | 'gpt-3.5-turbo';
+      temperature?: number;
+      maxTokens?: number;
+      ragEnabled?: boolean;
+      contextWindowSize?: number;
+      fallbackToIntent?: boolean;
+    };
   };
   appearance: {
     primaryColor: string;
@@ -93,6 +104,15 @@ const BotSchema = new Schema<IBot>(
         leadCaptureFields: Schema.Types.Mixed,
       },
       languages: [String],
+      aiMode: { type: String, enum: ['llm_first', 'hybrid', 'intent_only'], default: 'intent_only' },
+      aiConfig: {
+        primaryLLM: { type: String, enum: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'], default: 'gpt-3.5-turbo' },
+        temperature: { type: Number, default: 0.7 },
+        maxTokens: { type: Number, default: 500 },
+        ragEnabled: { type: Boolean, default: true },
+        contextWindowSize: { type: Number, default: 10 },
+        fallbackToIntent: { type: Boolean, default: true },
+      },
     },
     appearance: {
       primaryColor: { type: String, default: '#6366f1' },

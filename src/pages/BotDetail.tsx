@@ -18,6 +18,8 @@ interface BotData {
     welcomeMessage?: string;
     fallbackMessages?: string[];
     features?: { humanHandoff?: boolean; leadCapture?: boolean };
+    aiMode?: 'llm_first' | 'hybrid' | 'intent_only';
+    aiConfig?: { primaryLLM?: string; temperature?: number; maxTokens?: number; ragEnabled?: boolean; fallbackToIntent?: boolean };
   };
 }
 
@@ -228,7 +230,35 @@ function OverviewTab({
         <p className="text-slate-300">{bot.config?.welcomeMessage || 'Not set'}</p>
       </div>
       <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h2 className="font-semibold mb-4">Phase 7 features</h2>
+        <h2 className="font-semibold mb-4">AI mode</h2>
+        <p className="text-slate-400 text-sm mb-3">Choose how the bot responds: LLM-first uses OpenAI + knowledge base for natural answers; hybrid tries intents first then AI; intent-only uses only predefined intents.</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {(['llm_first', 'hybrid', 'intent_only'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={async () => {
+                setSaving(true);
+                try {
+                  await api.put(`/bots/${bot._id}`, {
+                    config: { ...bot.config, aiMode: mode },
+                  });
+                  onBotUpdate();
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              disabled={saving}
+              className={`px-3 py-1.5 rounded-lg text-sm ${bot.config?.aiMode === mode ? 'bg-violet-600 text-white' : 'bg-white/10 text-slate-300 hover:bg-white/15'}`}
+            >
+              {mode === 'llm_first' ? 'LLM-first' : mode === 'hybrid' ? 'Hybrid' : 'Intent-only'}
+            </button>
+          ))}
+        </div>
+        <p className="text-slate-500 text-sm">Current: <strong>{bot.config?.aiMode || 'intent_only'}</strong>. Set OPENAI_API_KEY in backend for LLM.</p>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <h2 className="font-semibold mb-4">Features</h2>
         <div className="space-y-4">
           <label className="flex items-center justify-between gap-4">
             <span className="text-slate-300">Human handoff</span>

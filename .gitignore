@@ -16,6 +16,7 @@ backend/dist
 # misc
 .DS_Store
 .env
+backend/.env
 .env.local
 .env*.local
 .env.development.local

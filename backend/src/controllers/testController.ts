@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../types';
 import { Bot } from '../models/Bot';
-import { getBotResponse } from '../services/nlpService';
+import { routeAndRespond } from '../services/messageRouter';
 
 export async function testBot(req: AuthRequest, res: Response): Promise<void> {
   try {
@@ -16,7 +16,7 @@ export async function testBot(req: AuthRequest, res: Response): Promise<void> {
       res.status(404).json({ success: false, message: 'Bot not found' });
       return;
     }
-    const result = await getBotResponse(botId, message);
+    const result = await routeAndRespond(botId, message, null);
     res.json({
       success: true,
       data: {
@@ -25,6 +25,7 @@ export async function testBot(req: AuthRequest, res: Response): Promise<void> {
         confidence: result.confidence,
         source: result.source,
         ...(result.title && { title: result.title }),
+        ...(result.metadata && { metadata: result.metadata }),
       },
     });
   } catch (err) {
