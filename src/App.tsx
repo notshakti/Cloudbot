@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import * as THREE from 'three';
 import { Bot, Cloud, Zap, MessageSquare, Globe, Users, ChevronRight, Send } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import CustomCursor, { type CursorType } from './components/CustomCursor';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
@@ -171,22 +172,22 @@ function ThreeJSScene() {
   return <div ref={mountRef} className="absolute inset-0 z-0 overflow-hidden pointer-events-none" />;
 }
 
-// Feature Card Component
+// Feature Card Component - glassmorphism, lift on hover
 function FeatureCard({ icon: Icon, title, description, delay = 0 }: { icon: React.ComponentType<{ className?: string }>; title: string; description: string; delay?: number }) {
   return (
     <div 
-      className="group relative p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:scale-[1.02]"
+      className="group relative p-8 rounded-2xl bg-white/5 backdrop-blur-[20px] border border-white/10 hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10"
       style={{
-        animation: `fadeInUp 0.8s ease-out ${delay}s both`
+        animation: `fadeInUp 0.6s ease-out ${delay}s both`
       }}
     >
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="relative z-10">
-        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-violet-500/20">
+        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-indigo-500/20">
           <Icon className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
-        <p className="text-slate-300 leading-relaxed">{description}</p>
+        <h3 className="font-display text-xl font-bold text-white mb-4">{title}</h3>
+        <p className="text-slate-300 leading-relaxed text-sm">{description}</p>
       </div>
     </div>
   );
@@ -196,17 +197,17 @@ function FeatureCard({ icon: Icon, title, description, delay = 0 }: { icon: Reac
 function Step({ number, title, description, delay = 0 }: { number: number; title: string; description: string; delay?: number }) {
   return (
     <div 
-      className="flex items-start space-x-6"
+      className="flex items-start gap-6 p-6 rounded-xl bg-dark-card/50 backdrop-blur-[20px] border border-white/10"
       style={{
-        animation: `slideInLeft 0.8s ease-out ${delay}s both`
+        animation: `slideInLeft 0.6s ease-out ${delay}s both`
       }}
     >
-      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
         <span className="text-white font-bold text-lg">{number}</span>
       </div>
       <div>
-        <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-        <p className="text-slate-300">{description}</p>
+        <h3 className="font-display text-xl font-semibold text-white mb-2">{title}</h3>
+        <p className="text-slate-300 text-sm">{description}</p>
       </div>
     </div>
   );
@@ -221,15 +222,15 @@ function ChatDemo() {
   ]);
 
   return (
-    <div className="max-w-md mx-auto bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-slate-900/50">
-      <div className="bg-gradient-to-r from-blue-600 to-violet-600 p-4">
+    <div className="max-w-md mx-auto bg-dark-card/80 backdrop-blur-[20px] rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-slate-900/50">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
             <h4 className="text-white font-semibold">AI Assistant</h4>
-            <p className="text-blue-100 text-sm">Online</p>
+            <p className="text-indigo-100 text-sm">Online</p>
           </div>
         </div>
       </div>
@@ -245,7 +246,7 @@ function ChatDemo() {
           >
             <div className={`max-w-xs px-4 py-2 rounded-2xl ${
               message.sender === 'user' 
-                ? 'bg-gradient-to-r from-blue-500 to-violet-600 text-white'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white'
                 : 'bg-white/10 text-white border border-white/10'
             }`}>
               <p className="text-sm">{message.text}</p>
@@ -262,7 +263,7 @@ function ChatDemo() {
             placeholder="Type your message..."
             className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
-          <button className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-violet-600 flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-violet-500/20">
+          <button className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-indigo-500/30">
             <Send className="w-4 h-4 text-white" />
           </button>
         </div>
@@ -271,7 +272,17 @@ function ChatDemo() {
   );
 }
 
-function LandingPage() {
+function LandingPage({
+  cursorType,
+  setCursorType,
+  cursorEnabled,
+  setCursorEnabled,
+}: {
+  cursorType: CursorType;
+  setCursorType: (t: CursorType) => void;
+  cursorEnabled: boolean;
+  setCursorEnabled: (e: boolean) => void;
+}) {
   const { user, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -303,6 +314,14 @@ function LandingPage() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.6; }
         }
+        @keyframes scaleUp {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeInRight {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
         .animate-pulse-slow { animation: pulse 2.5s ease-in-out infinite; }
       `}} />
 
@@ -311,10 +330,10 @@ function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 py-3.5">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <Bot className="w-5 h-5 text-white" strokeWidth={2} />
               </div>
-              <span className="text-lg font-bold tracking-tight text-white">CloudBot</span>
+              <span className="text-lg font-bold tracking-tight text-white font-display">CloudBot</span>
             </Link>
             <div className="flex items-center gap-4 md:gap-8">
               <a href="#features" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Features</a>
@@ -322,7 +341,7 @@ function LandingPage() {
               <a href="#demo" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Demo</a>
               {user ? (
                 <>
-                  <Link to="/dashboard" className="px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-400 hover:to-violet-500 shadow-lg shadow-violet-500/20 transition-all duration-300">
+                  <Link to="/dashboard" className="px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/30 transition-all duration-300">
                     Dashboard
                   </Link>
                   <button type="button" onClick={() => logout()} className="px-4 py-2 rounded-full text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
@@ -330,7 +349,7 @@ function LandingPage() {
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-400 hover:to-violet-500 shadow-lg shadow-violet-500/20 transition-all duration-300">
+                <Link to="/login" className="px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/30 transition-all duration-300">
                   Sign In
                 </Link>
               )}
@@ -339,47 +358,58 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20">
-        {/* 3D Background */}
+      {/* Hero Section - two-column: text + stats left, chat demo right */}
+      <section className="relative min-h-screen flex items-center pt-20">
         <ThreeJSScene />
-        {/* Gradient overlay for readability and cleaner look */}
         <div className="absolute inset-0 z-[1] bg-gradient-to-b from-slate-900/20 via-slate-900/50 to-slate-900/90 pointer-events-none" aria-hidden />
         <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,transparent_0%,rgba(15,23,42,0.4)_100%)] pointer-events-none" aria-hidden />
 
-        {/* Hero Content */}
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 text-center">
-          <div className="max-w-4xl mx-auto" style={{ animation: 'fadeInUp 1s ease-out' }}>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-              <span className="bg-gradient-to-r from-blue-300 via-violet-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(129,140,248,0.2)]">
-                Next-Gen Cloud
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(139,92,246,0.2)]">
-                Chatbot Platform
-              </span>
-            </h1>
-            <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
-              Powered by NLP, GCP, and serverless AI workflows.
-              <br className="hidden sm:block" />
-              Build intelligent conversations that scale.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-blue-500 to-violet-600 text-base font-semibold hover:from-blue-400 hover:to-violet-500 shadow-xl shadow-violet-500/25 hover:shadow-violet-500/35 transition-all duration-300 flex items-center justify-center gap-2 group">
-                <span>Get Started</span>
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-              <Link to="/login" className="w-full sm:w-auto px-8 py-4 rounded-full border-2 border-white/20 bg-white/5 text-base font-semibold hover:bg-white/10 hover:border-white/30 transition-all duration-300 backdrop-blur-sm text-center">
-                Sign in to create bots
-              </Link>
+        <div className="relative z-10 container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            <div className="text-center lg:text-left" style={{ animation: 'fadeInUp 0.8s ease-out' }}>
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-[1.1]">
+                <span className="bg-gradient-to-r from-indigo-300 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
+                  Next-Gen Cloud
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                  Chatbot Platform
+                </span>
+              </h1>
+              <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Deploy intelligent, scalable conversational AI in minutes. Powered by NLP, GCP, and serverless workflows.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link to="/signup" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-base font-semibold hover:from-indigo-400 hover:to-purple-500 shadow-xl shadow-indigo-500/30 transition-all duration-300 group">
+                  Launch Dashboard →
+                </Link>
+                <Link to="/login" className="inline-flex items-center justify-center px-8 py-4 rounded-full border-2 border-white/20 bg-white/5 text-base font-semibold hover:bg-white/10 hover:border-white/30 transition-all duration-300 backdrop-blur-sm">
+                  Watch Demo
+                </Link>
+              </div>
+              <div className="flex flex-wrap gap-4 mt-10 justify-center lg:justify-start">
+                <div className="rounded-xl border border-white/10 bg-dark-card/80 backdrop-blur-[20px] px-5 py-4 min-w-[140px]" style={{ animation: 'scaleUp 0.6s ease-out 0.1s both' }}>
+                  <div className="font-display font-bold text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">500+</div>
+                  <div className="text-slate-400 text-sm">Active Bots</div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-dark-card/80 backdrop-blur-[20px] px-5 py-4 min-w-[140px]" style={{ animation: 'scaleUp 0.6s ease-out 0.2s both' }}>
+                  <div className="font-display font-bold text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">2M+</div>
+                  <div className="text-slate-400 text-sm">Conversations</div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-dark-card/80 backdrop-blur-[20px] px-5 py-4 min-w-[140px]" style={{ animation: 'scaleUp 0.6s ease-out 0.3s both' }}>
+                  <div className="font-display font-bold text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">99.9%</div>
+                  <div className="text-slate-400 text-sm">Uptime</div>
+                </div>
+              </div>
             </div>
-            <p className="mt-4 text-slate-400 text-sm">
-              Sign in to create, train, and deploy your own chatbots from the dashboard.
-            </p>
+            <div className="flex justify-center" style={{ animation: 'fadeInRight 0.8s ease-out 0.2s both' }}>
+              <div id="demo" className="w-full max-w-md">
+                <ChatDemo />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-pulse-slow">
           <div className="w-6 h-9 border-2 border-white/20 rounded-full flex justify-center pt-1.5">
             <div className="w-1 h-2 bg-white/40 rounded-full" />
@@ -544,22 +574,77 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-white/5">
+      {/* Cursor switcher - bottom-left */}
+      <div className="fixed bottom-4 left-4 z-[9999] flex flex-col gap-2 rounded-xl bg-slate-900/90 backdrop-blur border border-white/10 p-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-400">Cursor</span>
+          <button
+            type="button"
+            onClick={() => setCursorEnabled(!cursorEnabled)}
+            className="text-xs px-2 py-0.5 rounded bg-white/10 text-slate-300 hover:bg-white/20"
+          >
+            {cursorEnabled ? 'On' : 'Off'}
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {CURSOR_TYPES.map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setCursorType(id)}
+              className={`px-2 py-1 rounded text-xs transition-colors ${
+                cursorType === id ? 'bg-violet-600 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer - 4 columns: Product, Resources, Legal, Info */}
+      <footer className="py-16 border-t border-white/5 bg-slate-900/30">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-500 to-violet-600 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+            <div>
+              <h4 className="font-display font-semibold text-white mb-4">Product</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#demo" className="hover:text-white transition-colors">Demo</a></li>
+                <li><Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-display font-semibold text-white mb-4">Resources</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#docs" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#api" className="hover:text-white transition-colors">API</a></li>
+                <li><a href="#support" className="hover:text-white transition-colors">Support</a></li>
+                <li><a href="#blog" className="hover:text-white transition-colors">Blog</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-display font-semibold text-white mb-4">Legal</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#privacy" className="hover:text-white transition-colors">Privacy</a></li>
+                <li><a href="#terms" className="hover:text-white transition-colors">Terms</a></li>
+                <li><a href="#cookies" className="hover:text-white transition-colors">Cookies</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-display font-semibold text-white mb-4">CloudBot</h4>
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-bold text-white">CloudBot</span>
               </div>
-              <span className="text-lg font-bold text-white">CloudBot</span>
+              <p className="text-slate-400 text-sm">Next-gen conversational AI. Build and deploy chatbots without coding.</p>
             </div>
-            <div className="flex items-center space-x-6 text-slate-400">
-              <a href="#privacy" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#terms" className="hover:text-white transition-colors">Terms</a>
-              <a href="#support" className="hover:text-white transition-colors">Support</a>
-              <span>&copy; 2025 CloudBot. All rights reserved.</span>
-            </div>
+          </div>
+          <div className="pt-8 border-t border-white/5 text-center text-slate-500 text-sm">
+            &copy; 2025 CloudBot. All rights reserved.
           </div>
         </div>
       </footer>
@@ -567,12 +652,34 @@ function LandingPage() {
   );
 }
 
+const CURSOR_TYPES: { id: CursorType; label: string }[] = [
+  { id: 'gradient', label: 'Gradient' },
+  { id: 'sparkle', label: 'Sparkle' },
+  { id: 'pulse', label: 'Pulse' },
+  { id: 'blob', label: 'Blob' },
+  { id: 'cyberpunk', label: 'Cyber' },
+];
+
 export default function App() {
+  const [cursorType, setCursorType] = useState<CursorType>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('cloudbot_cursor') as CursorType | null;
+      if (saved && CURSOR_TYPES.some((c) => c.id === saved)) return saved;
+    }
+    return 'gradient';
+  });
+  const [cursorEnabled, setCursorEnabled] = useState(() => typeof window !== 'undefined' && !('ontouchstart' in window));
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.setItem('cloudbot_cursor', cursorType);
+  }, [cursorType]);
+
   return (
     <AuthProvider>
+      <CustomCursor type={cursorType} enabled={cursorEnabled} />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage cursorType={cursorType} setCursorType={setCursorType} cursorEnabled={cursorEnabled} setCursorEnabled={setCursorEnabled} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
