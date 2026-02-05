@@ -29,4 +29,15 @@ export const config = {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
   },
+  // RAG – Vector DB (Qdrant) + Embeddings (Gemini) + LLM (Groq) – all free tier
+  qdrant: {
+    url: process.env.QDRANT_URL || '',
+    apiKey: process.env.QDRANT_API_KEY || '',
+  },
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+  },
+  groq: {
+    apiKey: process.env.GROQ_API_KEY || '',
+  },
 };

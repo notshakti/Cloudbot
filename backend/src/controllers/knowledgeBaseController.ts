@@ -4,6 +4,7 @@ import { AuthRequest } from '../types';
 import { KnowledgeBase } from '../models/KnowledgeBase';
 import { extractTextFromBuffer, chunkAndProcess, scrapeUrl } from '../services/documentProcessor';
 import type { MulterRequest } from '../types';
+import * as ragVector from '../services/ragVector.service';
 
 export async function listKnowledgeBase(req: AuthRequest, res: Response): Promise<void> {
   try {
@@ -224,6 +225,45 @@ export async function deleteKnowledgeBaseItem(req: AuthRequest, res: Response): 
   } catch (err) {
     console.error('[KB] Delete error:', err);
     res.status(500).json({ success: false, message: 'Failed to delete item' });
+  }
+}
+
+export async function uploadVectorDocument(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { botId } = req.params;
+    const file = (req as MulterRequest).file;
+    const url = typeof req.body?.url === 'string' ? req.body.url.trim() : null;
+    if (!file && !url) {
+      res.status(400).json({ success: false, message: 'Provide a file upload or a URL in body' });
+      return;
+    }
+    const fileForRag = file && file.buffer ? { ...file, buffer: file.buffer } : null;
+    const result = await ragVector.processAndStoreDocument(botId, fileForRag, url || null);
+    res.json({ success: true, message: result.message, data: result });
+  } catch (err) {
+    console.error('[KB] Vector upload error:', err);
+    const e = err as any;
+    const rootCause =
+      e?.cause?.message ||
+      e?.cause?.code ||
+      e?.cause?.hostname ||
+      e?.message ||
+      'Failed to process document for RAG';
+    res.status(500).json({
+      success: false,
+      message: `RAG vector upload failed: ${rootCause}`,
+    });
+  }
+}
+
+export async function getVectorStats(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { botId } = req.params;
+    const stats = await ragVector.getKnowledgeBaseStats(botId);
+    res.json({ success: true, data: stats ?? { totalChunks: 0, collectionSizeMb: '0 MB' } });
+  } catch (err) {
+    console.error('[KB] Vector stats error:', err);
+    res.status(500).json({ success: false, message: 'Failed to get RAG stats' });
   }
 }
 

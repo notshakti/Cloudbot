@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Bot, ArrowLeft, MessageSquare, BookOpen, Database, Send, Plus, Trash2, Share2, BarChart3, Copy, Check, Rocket, Users, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { api, uploadFile } from '../api/client';
+import { api, uploadFile, uploadRagDocument } from '../api/client';
 
 const JUST_CREATED_KEY = 'cloudbot_just_created';
 
@@ -412,6 +412,11 @@ function IntentsTab({ botId, intents, onReload }: { botId: string; intents: Inte
   );
 }
 
+interface VectorStats {
+  totalChunks: number;
+  collectionSizeMb: string;
+}
+
 function KnowledgeTab({ botId, kbItems, onReload }: { botId: string; kbItems: KBItem[]; onReload: () => void }) {
   const [showUrl, setShowUrl] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
@@ -420,6 +425,25 @@ function KnowledgeTab({ botId, kbItems, onReload }: { botId: string; kbItems: KB
   const [faqA, setFaqA] = useState('');
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [vectorStats, setVectorStats] = useState<VectorStats | null>(null);
+  const [ragFile, setRagFile] = useState<File | null>(null);
+  const [ragUrl, setRagUrl] = useState('');
+  const [ragUploading, setRagUploading] = useState(false);
+  const [ragResult, setRagResult] = useState<{ stats?: { totalChunks: number; documentTitle: string; processingTime: number } } | null>(null);
+  const [ragError, setRagError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get<VectorStats>(`/bots/${botId}/knowledge-base/vector-stats`);
+        if (!cancelled) setVectorStats(res.success && res.data ? res.data : null);
+      } catch {
+        if (!cancelled) setVectorStats(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [botId, kbItems.length]);
 
   async function handleUrl(e: React.FormEvent) {
     e.preventDefault();
@@ -463,8 +487,81 @@ function KnowledgeTab({ botId, kbItems, onReload }: { botId: string; kbItems: KB
     }
   }
 
+  async function handleRagUpload(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ragFile && !ragUrl.trim()) return;
+    setRagUploading(true);
+    setRagResult(null);
+    setRagError(null);
+    try {
+      const res = await uploadRagDocument(`/bots/${botId}/knowledge-base/upload-vector`, {
+        file: ragFile || undefined,
+        url: ragUrl.trim() || undefined,
+      });
+      setRagFile(null);
+      setRagUrl('');
+      setRagResult(res.data as { stats?: { totalChunks: number; documentTitle: string; processingTime: number } } || null);
+      onReload();
+      const statsRes = await api.get<VectorStats>(`/bots/${botId}/knowledge-base/vector-stats`);
+      if (statsRes.success && statsRes.data) setVectorStats(statsRes.data);
+    } catch (err) {
+      setRagError(err instanceof Error ? err.message : 'Upload failed. Try again.');
+    } finally {
+      setRagUploading(false);
+    }
+  }
+
   return (
     <div className="max-w-3xl">
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 mb-6">
+        <h3 className="font-semibold text-emerald-400 mb-2">RAG (Vector) – 100% FREE</h3>
+        <p className="text-slate-400 text-sm mb-4">
+          Upload documents or URLs to train your bot with semantic search. Uses Qdrant + Gemini + Groq (free tiers).
+        </p>
+        {vectorStats != null && (
+          <p className="text-slate-300 text-sm mb-4">
+            Vector KB: <strong>{vectorStats.totalChunks}</strong> chunks · {vectorStats.collectionSizeMb}
+          </p>
+        )}
+        {ragError && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
+            {ragError}
+          </div>
+        )}
+        <form onSubmit={handleRagUpload} className="space-y-3">
+          <div>
+            <label className="block text-sm text-slate-400 mb-1">File (PDF, DOCX, TXT, CSV)</label>
+            <input
+              type="file"
+              accept=".pdf,.docx,.doc,.txt,.csv"
+              onChange={(e) => setRagFile(e.target.files?.[0] || null)}
+              className="text-slate-400 text-sm w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-slate-400 mb-1">Or website URL</label>
+            <input
+              type="url"
+              value={ragUrl}
+              onChange={(e) => setRagUrl(e.target.value)}
+              placeholder="https://example.com/page"
+              className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={ragUploading || (!ragFile && !ragUrl.trim())}
+            className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50"
+          >
+            {ragUploading ? 'Processing…' : 'Upload & train bot'}
+          </button>
+        </form>
+        {ragResult?.stats && (
+          <div className="mt-4 p-3 rounded-lg bg-white/5 text-sm text-slate-300">
+            Done: {ragResult.stats.documentTitle} · {ragResult.stats.totalChunks} chunks · {ragResult.stats.processingTime}ms
+          </div>
+        )}
+      </div>
       <div className="flex flex-wrap gap-2 mb-6">
         <button onClick={() => setShowUrl(!showUrl)} className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 font-medium">
           Add URL

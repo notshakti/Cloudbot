@@ -6,6 +6,9 @@
 import { GoogleGenAI } from '@google/genai';
 import Groq from 'groq-sdk';
 import { getRelevantKnowledgeChunks, RelevantChunk } from './ragService';
+import { isVectorDBAvailable } from './vectorDB.service';
+import * as embedding from './embedding.service';
+import * as vectorDB from './vectorDB.service';
 
 const geminiApiKey = process.env.GEMINI_API_KEY || '';
 const groqApiKey = process.env.GROQ_API_KEY || '';
@@ -144,7 +147,29 @@ async function tryGroq(
 }
 
 /**
+ * Get RAG context: use vector DB (Qdrant) when configured, else MongoDB keyword chunks.
+ */
+async function getRagChunks(botId: string, query: string, limit: number): Promise<RelevantChunk[]> {
+  if (isVectorDBAvailable() && embedding.isEmbeddingAvailable()) {
+    try {
+      const queryEmbedding = await embedding.generateQueryEmbedding(query);
+      const similar = await vectorDB.searchSimilar(botId, queryEmbedding, limit, 0.5);
+      return similar.map((s, i) => ({
+        id: `vec-${i}-${s.metadata?.source ?? 'doc'}`,
+        text: s.text,
+        title: s.metadata?.title as string | undefined,
+        score: s.score,
+      }));
+    } catch (err) {
+      console.error('[LLMBrain] Vector RAG fallback to KB:', err);
+    }
+  }
+  return getRelevantKnowledgeChunks(botId, query, limit);
+}
+
+/**
  * Generate a response using Gemini first, then Groq on failure. RAG is always used for context.
+ * When Qdrant is configured, vector RAG is used; otherwise MongoDB knowledge base chunks.
  */
 export async function generateLLMResponse(
   userMessage: string,
@@ -169,11 +194,7 @@ export async function generateLLMResponse(
     };
   }
 
-  const knowledgeDocs = await getRelevantKnowledgeChunks(
-    context.botId,
-    userMessage,
-    ragLimit
-  );
+  const knowledgeDocs = await getRagChunks(context.botId, userMessage, ragLimit);
 
   const systemPrompt = buildSystemPrompt(context, knowledgeDocs);
   const metaBase = {

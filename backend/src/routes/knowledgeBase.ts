@@ -40,6 +40,16 @@ router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
 router.post('/url', kbController.addUrl);
 router.post('/faq', kbController.addFaq);
 router.get('/search', kbController.searchKnowledgeBase);
+router.get('/vector-stats', kbController.getVectorStats);
+router.post('/upload-vector', (req: Request, res: Response, next: NextFunction) => {
+  upload.single('file')(req, res, (err: unknown) => {
+    if (err) {
+      res.status(400).json({ success: false, message: err instanceof Error ? err.message : 'Upload failed' });
+      return;
+    }
+    next();
+  });
+}, kbController.uploadVectorDocument);
 router.get('/:kbId', kbController.getKnowledgeBaseItem);
 router.put('/:kbId', kbController.updateKnowledgeBaseItem);
 router.delete('/:kbId', kbController.deleteKnowledgeBaseItem);

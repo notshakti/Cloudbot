@@ -1,4 +1,5 @@
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+// In dev, use relative /api so the React dev server proxy (see package.json "proxy") forwards to backend.
+const API_BASE = process.env.REACT_APP_API_URL || '/api';
 
 function getToken(): string | null {
   return localStorage.getItem('cloudbot_token');
@@ -34,6 +35,33 @@ export async function uploadFile(path: string, file: File): Promise<{ success: b
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: form,
   });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || res.statusText || 'Upload failed');
+  return json;
+}
+
+/** RAG vector upload: file and/or url (FormData). */
+export async function uploadRagDocument(
+  path: string,
+  opts: { file?: File | null; url?: string }
+): Promise<{ success: boolean; data?: unknown; message?: string }> {
+  const token = getToken();
+  const form = new FormData();
+  if (opts.file) form.append('file', opts.file);
+  if (opts.url?.trim()) form.append('url', opts.url.trim());
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+  } catch (err) {
+    // Any network error (fetch failed, connection refused, etc.) → show clear message
+    throw new Error(
+      'Cannot reach the backend. Start it in a terminal: cd backend && npm run dev — then try again.'
+    );
+  }
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.message || res.statusText || 'Upload failed');
   return json;

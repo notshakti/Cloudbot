@@ -56,7 +56,7 @@ export interface ConversationMessage {
  * Build LLM context from bot and conversation.
  */
 export function buildLLMContext(
-  bot: { _id: string; name: string; type: string; description?: string; config?: { tone?: string; welcomeMessage?: string } },
+  bot: { _id: unknown; name?: string; type?: string; description?: string; config?: { tone?: string; welcomeMessage?: string } },
   conversationHistory: ConversationMessage[]
 ): LLMContext {
   return {

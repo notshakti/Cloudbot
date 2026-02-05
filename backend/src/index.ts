@@ -14,6 +14,10 @@ import templateRoutes from './routes/templates';
 
 const app = express();
 
+// Required when running behind proxies/dev-servers that set X-Forwarded-* headers (e.g. CRA proxy).
+// Also fixes express-rate-limit validation errors.
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(
   cors({
